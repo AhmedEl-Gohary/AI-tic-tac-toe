@@ -10,12 +10,13 @@ X_COLOR = '#f1f1f1'
 BACKGROUND = '#649ca3'
 GRID = '#deb987'
 
+# Game variables
 board = [['']*3, ['']*3, ['']*3]
 move_counter = 0
 player_x = True
 need_restart = False
 winner = ''
-scores = {'x': 1, 'o': -1}
+scores = {'x': 1, 'o': -1, 'tie': 0}
 
 # Screen settings
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -82,7 +83,7 @@ def checkWinner():
 # TODO: debug AI movement
 def minimax(board, alpha, beta, is_maximizing):
 	result = checkWinner()
-	if result != '' and result != 'tie':
+	if result != '':
 		return scores[result]
 
 	if is_maximizing:
