@@ -11,11 +11,11 @@ BACKGROUND = '#649ca3'
 GRID = '#deb987'
 
 board = [['']*3, ['']*3, ['']*3]
-player_x = True
 move_counter = 0
+player_x = True
 need_restart = False
 winner = ''
-scores = {'x': 1, 'o': -1, 'tie': 0}
+scores = {'x': 1, 'o': -1}
 
 # Screen settings
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -51,10 +51,7 @@ def drawO(x, y):
 	pygame.display.update()
 
 def center(pos):
-	if pos <= 400: pos = 200
-	elif pos <= 800: pos = 600
-	else: pos = 1000
-	return pos
+	return 200 if pos <= 400 else 600 if pos <= 800 else 1000
 
 def boardCoord(x, y):
 	j = 0 if x == 200 else 1 if x == 600 else 2
@@ -77,14 +74,15 @@ def checkWinner():
 	# checking anti-diagonal
 	if board[0][2] == board[1][1] and board[1][1] == board[2][0]:
 		winner = board[1][1]
+	# checking for tie
 	if winner == '' and move_counter == 9:
 		return 'tie'
 	return winner
 
-
+# TODO: debug AI movement
 def minimax(board, alpha, beta, is_maximizing):
 	result = checkWinner()
-	if result != '':
+	if result != '' and result != 'tie':
 		return scores[result]
 
 	if is_maximizing:
@@ -120,10 +118,12 @@ def minimax(board, alpha, beta, is_maximizing):
 			break
 		return min_score
 
+# drawing game board
+drawBoard();
+pygame.display.update()
 
+# Game loop
 while True:
-	drawBoard();
-	pygame.display.update()
 	# checking for user input
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
@@ -143,6 +143,7 @@ while True:
 				need_restart = False
 				pygame.display.update()
 
+		# player's turn
 		if event.type == pygame.MOUSEBUTTONDOWN and not player_x and not need_restart:
 			if event.button == 1:
 				mx, my = pygame.mouse.get_pos()
@@ -155,9 +156,9 @@ while True:
 					player_x = True
 					move_counter += 1
 
+	# AI's turn
 	if player_x and move_counter < 9 and not need_restart:
 		best_score = -math.inf
-		best_move = (0, 0)
 		for i in range(3):
 			for j in range(3):
 				if board[i][j] == '':
@@ -176,6 +177,7 @@ while True:
 		for i in range(3):
 			print(board[i])
 
+	# checking status of the game
 	if winner == 'x' or move_counter == 9:
 		if winner == 'x':
 			screen.blit(ai_surface, result_rect)
