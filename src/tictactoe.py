@@ -1,4 +1,4 @@
-import pygame, sys, time, math
+import pygame, sys, time, math, random
 
 pygame.init()
 
@@ -16,7 +16,7 @@ move_counter = 0
 player_x = True
 need_restart = False
 winner = ''
-scores = {'x': 1, 'o': -1, 'tie': 0}
+scores = {'x': 10, 'o': -10, 'tie': 0}
 
 # Screen settings
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -59,30 +59,29 @@ def boardCoord(x, y):
 	i = 0 if y == 200 else 1 if y == 600 else 2
 	return (i, j)
 
-def checkWinner():
-	winner = ''
-	# checking row
+def checkWinner(board):
+	# Checking row
 	for i in range(3):
 		if board[i][0] == board[i][1] and board[i][1] == board[i][2]:
-			winner = board[i][0]
-	# checking col
+			return board[i][0]
+	# Checking col
 	for i in range(3):
 		if board[0][i] == board[1][i] and board[1][i] == board[2][i]:
-			winner = board[0][i]
-	# checking diagonal
+			return board[0][i]
+	# Checking diagonal
 	if board[0][0] == board[1][1] and board[1][1] == board[2][2]:
-		winner = board[0][0]
-	# checking anti-diagonal
+		return board[0][0]
+	# Checking anti-diagonal
 	if board[0][2] == board[1][1] and board[1][1] == board[2][0]:
-		winner = board[1][1]
-	# checking for tie
-	if winner == '' and move_counter == 9:
+		return board[1][1]
+	# Checking for a tie
+	if move_counter == 9:
 		return 'tie'
-	return winner
+	return ''
 
 # TODO: debug AI movement
-def minimax(board, alpha, beta, is_maximizing):
-	result = checkWinner()
+def minimax(board, is_maximizing, alpha = -math.inf, beta = math.inf):
+	result = checkWinner(board)
 	if result != '':
 		return scores[result]
 
@@ -92,14 +91,13 @@ def minimax(board, alpha, beta, is_maximizing):
 			for j in range(3):
 				if board[i][j] == '':
 					board[i][j] = 'x'
-					score = minimax(board, alpha, beta, False)
+					score = minimax(board, False)
 					board[i][j] = ''
-					max_score = max(score, max_score)
 					alpha = max(alpha, score)
+					max_score = max(score, max_score)
 					if beta <= alpha:
 						break
-			else:
-				continue
+			else: continue
 			break
 		return max_score
 	else:
@@ -108,83 +106,84 @@ def minimax(board, alpha, beta, is_maximizing):
 			for j in range(3):
 				if board[i][j] == '':
 					board[i][j] = 'o'
-					score = minimax(board, alpha, beta, True)
+					score = minimax(board, True) 
 					board[i][j] = ''
+					beta = min(score, beta)
 					min_score = min(score, min_score)
-					beta = min(beta, score)
-					if beta <= alpha:
+					if (beta <= alpha):
 						break
-			else:
-				continue
+			else: continue
 			break
 		return min_score
 
-# drawing game board
+# Drawing game board
 drawBoard();
 pygame.display.update()
 
-# Game loop
-while True:
-	# checking for user input
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			pygame.quit()
-			sys.exit()
+if __name__ == '__main__':
+	# Game loop
+	while True:
 
-		if need_restart and event.type == pygame.KEYDOWN:
-			if event.key ==  pygame.K_SPACE:
-				winner = ''
-				move_counter = 0
-				player_x = True
-				screen.fill(BACKGROUND)
-				drawBoard()
-				for r in range(3):
-					for c in range(3):
-						board[r][c] = ''
-				need_restart = False
-				pygame.display.update()
+		# Checking for user input
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				pygame.quit()
+				sys.exit()
 
-		# player's turn
-		if event.type == pygame.MOUSEBUTTONDOWN and not player_x and not need_restart:
-			if event.button == 1:
-				mx, my = pygame.mouse.get_pos()
-				mx = center(mx)
-				my = center(my)
-				x, y = boardCoord(mx, my)
-				if  board[x][y] == '':
-					drawO(mx, my)
-					board[x][y] = 'o'
+			if need_restart and event.type == pygame.KEYDOWN:
+				if event.key ==  pygame.K_SPACE:
+					winner = ''
+					move_counter = 0
 					player_x = True
-					move_counter += 1
+					screen.fill(BACKGROUND)
+					drawBoard()
+					for r in range(3):
+						for c in range(3):
+							board[r][c] = ''
+					need_restart = False
+					pygame.display.update()
 
-	# AI's turn
-	if player_x and move_counter < 9 and not need_restart:
-		best_score = -math.inf
-		for i in range(3):
-			for j in range(3):
-				if board[i][j] == '':
-					board[i][j] = 'x'
-					score = minimax(board, -math.inf, math.inf, False)
-					board[i][j] = ''
-					if score > best_score:
-						best_score = score
-						best_move = (i, j)
-					
-		drawX(best_move[0], best_move[1])
-		move_counter += 1
-		board[best_move[0]][best_move[1]] = 'x'
-		player_x = False
-		winner = checkWinner()
-		for i in range(3):
-			print(board[i])
+			# Player's turn
+			if event.type == pygame.MOUSEBUTTONDOWN and not player_x and not need_restart:
+				if event.button == 1:
+					mx, my = pygame.mouse.get_pos()
+					mx = center(mx)
+					my = center(my)
+					x, y = boardCoord(mx, my)
+					if  board[x][y] == '':
+						drawO(mx, my)
+						board[x][y] = 'o'
+						player_x = True
+						move_counter += 1
 
-	# checking status of the game
-	if winner == 'x' or move_counter == 9:
-		if winner == 'x':
-			screen.blit(ai_surface, result_rect)
-		else:
-			screen.blit(tie_surface, result_rect)
-		screen.blit(restart_surface, restart_rect)
-		need_restart = True
+		# AI's turn
+		if player_x and move_counter < 9 and not need_restart:
+			best_score = -math.inf
+			for i in range(3):
+				for j in range(3):
+					if board[i][j] == '':
+						board[i][j] = 'x'
+						score = minimax(board, False)
+						board[i][j] = ''
+						if score > best_score:
+							best_score = score
+							best_move = (i, j)
+						
+			drawX(best_move[0], best_move[1])
+			move_counter += 1
+			board[best_move[0]][best_move[1]] = 'x'
+			player_x = False
+			winner = checkWinner(board)
+			for i in range(3):
+				print(board[i])
 
-	pygame.display.update()
+		# checking status of the game
+		if winner == 'x' or move_counter == 9:
+			if winner == 'x':
+				screen.blit(ai_surface, result_rect)
+			else:
+				screen.blit(tie_surface, result_rect)
+			screen.blit(restart_surface, restart_rect)
+			need_restart = True
+
+		pygame.display.update()
