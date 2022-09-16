@@ -42,6 +42,8 @@ pip install pygame
 ```
 
 ## Usage
-Clone the repo then run tictactoe.py
-Play against the AI. 
+Clone the repo then run tictactoe.py   
+
+Play against the AI.    
+
 P.S: you can never win ;)
