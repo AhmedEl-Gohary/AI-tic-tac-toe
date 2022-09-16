@@ -2,14 +2,14 @@
 
 A TicTacToe game where you play against an AI   
 
-The AI is built using the Minimax algorithms, you can learn about it [here](https://www.youtube.com/watch?v=l-hh51ncgDI)
+The AI is built using the Minimax algorithm, you can learn more about it [here](https://www.youtube.com/watch?v=l-hh51ncgDI)
 
 
-You can see it in action [here](https://www.youtube.com/watch?v=rCkwOVDNoks)
+Also, you can see it in action [here](https://www.youtube.com/watch?v=rCkwOVDNoks)
 
 ## Screenshots
 
-![AIwin](images/win.png)
+![win](images/win.png)
 ![tie](images/tie.png)
 
 ## Installation 
