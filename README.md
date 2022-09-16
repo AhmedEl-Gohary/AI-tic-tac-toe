@@ -1,6 +1,7 @@
 # TicTacToe AI
 
-A TicTacToe game where you play against an AI
+A TicTacToe game where you play against an AI   
+
 The AI is built using the Minimax algorithms, you can learn about it [here](https://www.youtube.com/watch?v=l-hh51ncgDI)
 
 
